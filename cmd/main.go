@@ -18,6 +18,7 @@ func main() {
 	server := StartServer()
 	server.SetUpRoutes()
 
+	server.RunSwagger()
 	server.Run()
 }
 

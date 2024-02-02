@@ -1,0 +1,187 @@
+definitions:
+  controller.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  controller.TaskRequest:
+    properties:
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/controller.TaskStatus'
+    required:
+    - name
+    - status
+    type: object
+  controller.TaskResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: integer
+    type: object
+  controller.TaskStatus:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - Incomplete
+    - Completed
+info:
+  contact: {}
+paths:
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get details of all tasks.
+      operationId: getAllTasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controller.TaskResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+      summary: Retrieve all tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task with the provided details.
+      operationId: postTask
+      parameters:
+      - description: Task details to create
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.TaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+      summary: Create a new task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing task by ID.
+      operationId: deleteTask
+      parameters:
+      - description: ID of the task to delete
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Resource Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+      summary: Delete a task
+      tags:
+      - tasks
+    get:
+      consumes:
+      - application/json
+      description: Get details of an existing task by ID.
+      operationId: getTaskByID
+      parameters:
+      - description: ID of the task to retrieve
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TaskResponse'
+        "404":
+          description: Resource Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+      summary: Retrieve a task by ID
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: Update an existing task or create a new one if not exists.
+      operationId: updateTask
+      parameters:
+      - description: ID of the task to update
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Task details to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.TaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ErrorResponse'
+      summary: Update a task
+      tags:
+      - tasks
+swagger: "2.0"

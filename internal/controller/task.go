@@ -28,6 +28,10 @@ type TaskResponse struct {
 	Status int
 }
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 var tC *TaskController
 
 func SetUpTasksRoutes(r *gin.Engine) {
@@ -49,6 +53,18 @@ func NewTasksController() {
 	tC = &TaskController{}
 }
 
+// postTask creates a new task.
+// @Summary Create a new task
+// @Description Create a new task with the provided details.
+// @ID postTask
+// @Accept json
+// @Produce json
+// @Param body body TaskRequest true "Task details to create"
+// @Success 201 {string} string "Created"
+// @Failure 400 {object} ErrorResponse "Bad Request"
+// @Failure 500 {object} ErrorResponse "Internal Server Error"
+// @Router /tasks [post]
+// @Tags tasks
 func (tc *TaskController) postTask(c *gin.Context) {
 	var taskReq TaskRequest
 
@@ -61,7 +77,7 @@ func (tc *TaskController) postTask(c *gin.Context) {
 	err = tc.insertTask(taskReq, "")
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
 	c.JSON(http.StatusCreated, "Created")
@@ -89,11 +105,22 @@ func (tc *TaskController) insertTask(task TaskRequest, taskID string) error {
 	return nil
 }
 
+// getAllTasks retrieves all tasks.
+// @Summary Retrieve all tasks
+// @Description Get details of all tasks.
+// @ID getAllTasks
+// @Accept json
+// @Produce json
+// @Success 200 {array} TaskResponse "OK"
+// @Failure 500 {object} ErrorResponse "Internal Server Error"
+// @Router /tasks [get]
+// @Tags tasks
 func (tc *TaskController) getAllTasks(c *gin.Context) {
 
 	res, err := database.MongoDB.GetTasks()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	results := []TaskResponse{}
@@ -110,6 +137,18 @@ func (tc *TaskController) getAllTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, results)
 }
 
+// getTaskByID retrieves a task by ID.
+// @Summary Retrieve a task by ID
+// @Description Get details of an existing task by ID.
+// @ID getTaskByID
+// @Accept json
+// @Produce json
+// @Param id path string true "ID of the task to retrieve" Pattern("^[0-9a-fA-F]{24}$")
+// @Success 200 {object} TaskResponse "OK"
+// @Success 404 {object} ErrorResponse "Resource Not Found"
+// @Failure 500 {object} ErrorResponse "Internal Server Error"
+// @Router /tasks/{id} [get]
+// @Tags tasks
 func (tc *TaskController) getTaskByID(c *gin.Context) {
 
 	taskID := c.Param("id")
@@ -132,6 +171,20 @@ func (tc *TaskController) getTaskByID(c *gin.Context) {
 
 }
 
+// putTask updates or creates a task.
+// @Summary Update a task
+// @Description Update an existing task or create a new one if not exists.
+// @ID updateTask
+// @Accept json
+// @Produce json
+// @Param id path string true "ID of the task to update" Pattern("^[0-9a-fA-F]{24}$")
+// @Param body body TaskRequest true "Task details to update"
+// @Success 200 {string} string "OK"
+// @Success 201 {string} string "Created"
+// @Failure 400 {object} ErrorResponse "Bad Request"
+// @Failure 500 {object} ErrorResponse "Internal Server Error"
+// @Router /tasks/{id} [put]
+// @Tags tasks
 func (tc *TaskController) putTask(c *gin.Context) {
 
 	var taskReq TaskRequest
@@ -183,6 +236,18 @@ func (tc *TaskController) putTask(c *gin.Context) {
 
 }
 
+// deleteTask deletes a task by ID.
+// @Summary Delete a task
+// @Description Delete an existing task by ID.
+// @ID deleteTask
+// @Accept json
+// @Produce json
+// @Param id path string true "ID of the task to delete" Pattern("^[0-9a-fA-F]{24}$")
+// @Success 200 {string} string "OK"
+// @Success 404 {object} ErrorResponse "Resource Not Found"
+// @Failure 500 {object} ErrorResponse "Internal Server Error"
+// @Router /tasks/{id} [delete]
+// @Tags tasks
 func (tc *TaskController) deleteTask(c *gin.Context) {
 	taskID := c.Param("id")
 
