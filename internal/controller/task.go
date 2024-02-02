@@ -114,6 +114,13 @@ func (tc *TaskController) getTaskByID(c *gin.Context) {
 
 	taskID := c.Param("id")
 
+	_, err := primitive.ObjectIDFromHex(taskID)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Resource Not Found"})
+		return
+	}
+
 	res, err := database.MongoDB.GetTaskByID(taskID)
 
 	if err != nil {
@@ -178,6 +185,13 @@ func (tc *TaskController) putTask(c *gin.Context) {
 
 func (tc *TaskController) deleteTask(c *gin.Context) {
 	taskID := c.Param("id")
+
+	_, err := primitive.ObjectIDFromHex(taskID)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Resource Not Found"})
+		return
+	}
 
 	deleteCount, err := database.MongoDB.DeleteTaskByID(taskID)
 
