@@ -15,7 +15,16 @@ type DB struct {
 	db     *mongo.Database
 }
 
-var MongoDB *DB
+type DBInterface interface {
+	CloseConnection()
+	InsertSingleTask(task Task) error
+	GetTaskByID(taskID string) (Task, error)
+	GetTasks() ([]Task, error)
+	DeleteTaskByID(taskID string) (int64, error)
+	UpdateTaskID(taskID string, task Task) error
+}
+
+var MongoDB DBInterface
 
 type Task struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
