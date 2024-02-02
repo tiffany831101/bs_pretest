@@ -1,0 +1,8 @@
+db:
+  name: pretest
+  username: docker
+  password: mongopw
+  localURI: mongodb://docker:mongopw@localhost:49153
+
+server:
+  port: 8080
